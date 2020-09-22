@@ -131,9 +131,4 @@ public final class FakeDatabase implements Database {
         }
     }
 
-    @Override
-    public int execute(Text script) throws BazisException {
-        throw new UnsupportedOperationException("Method not implemented");
-    }
-
 }

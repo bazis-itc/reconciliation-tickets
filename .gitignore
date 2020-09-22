@@ -1,1 +1,2 @@
 /target/
+/src/main/resources/bazis/tasks/reconciliation_tickets/*.sql.design

@@ -8,10 +8,12 @@ import bazis.tasks.reconciliation_tickets.JdbcRegister;
 import java.io.File;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import sx.datastore.impl.fs.SXFileObj;
 
+@Ignore
 public final class ReconciliationTicketsTaskITCase {
 
     @Test

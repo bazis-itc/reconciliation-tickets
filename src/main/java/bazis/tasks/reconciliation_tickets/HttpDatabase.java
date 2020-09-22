@@ -29,9 +29,4 @@ public final class HttpDatabase implements Database {
         }
     }
 
-    @Override
-    public int execute(Text script) throws BazisException {
-        throw new UnsupportedOperationException("Method not implemented");
-    }
-
 }

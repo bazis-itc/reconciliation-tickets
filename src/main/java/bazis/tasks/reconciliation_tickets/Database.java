@@ -9,6 +9,4 @@ public interface Database {
 
     Result<Record> select(Text query) throws BazisException;
 
-    int execute(Text script) throws BazisException;
-
 }

@@ -13,7 +13,7 @@ SELECT
   person = person.centralId,  
   docType = docType.GUID
 FROM @person person
-  LEFT JOIN WM_ACTDOCUMENTS doc 
+  JOIN WM_ACTDOCUMENTS doc 
     JOIN PPR_DOC docType ON docType.A_ID = doc.DOCUMENTSTYPE
   ON doc.PERSONOUID = person.localId
     AND ISNULL(doc.DOCUMENTSERIES, '') = ISNULL(person.docSeries, '')
