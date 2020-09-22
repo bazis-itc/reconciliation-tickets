@@ -39,8 +39,8 @@ public final class JsonChecks extends IterableEnvelope<Check>
                             json.getAsJsonArray(),
                             new Func<JsonElement, Check>() {
                                 @Override
-                                public Check apply(JsonElement person) {
-                                    return new JsonCheck(person);
+                                public Check apply(JsonElement check) {
+                                    return new JsonCheck(check);
                                 }
                             }
                         );

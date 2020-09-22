@@ -4,6 +4,6 @@ import bazis.cactoos3.exception.BazisException;
 
 public interface Register {
 
-    Iterable<Check> check(Iterable<Person> persons) throws BazisException;
+    Iterable<Check> check(Iterable<Citizen> citizens) throws BazisException;
 
 }

@@ -5,42 +5,42 @@ import bazis.cactoos3.Scalar;
 import bazis.cactoos3.exception.BazisException;
 import bazis.cactoos3.iterable.IterableEnvelope;
 import bazis.cactoos3.iterable.MappedIterable;
-import bazis.tasks.reconciliation_tickets.Person;
+import bazis.tasks.reconciliation_tickets.Citizen;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
-public final class JsonPersons extends IterableEnvelope<Person>
+public final class JsonCitizens extends IterableEnvelope<Citizen>
     implements Jsonable {
 
-    public JsonPersons(JsonElement json) {
-        this(new JsonPersons.Parsed(json));
+    public JsonCitizens(JsonElement json) {
+        this(new JsonCitizens.Parsed(json));
     }
 
-    public JsonPersons(Iterable<Person> iterable) {
+    public JsonCitizens(Iterable<Citizen> iterable) {
         super(iterable);
     }
 
     @Override
     public JsonElement asJson() throws BazisException {
         final JsonArray json = new JsonArray();
-        for (final Person person : this)
-            json.add(new JsonPerson(person).asJson());
+        for (final Citizen citizen : this)
+            json.add(new JsonCitizen(citizen).asJson());
         return json;
     }
 
-    private static final class Parsed extends IterableEnvelope<Person> {
+    private static final class Parsed extends IterableEnvelope<Citizen> {
 
         private Parsed(final JsonElement json) {
             super(
-                new Scalar<Iterable<Person>>() {
+                new Scalar<Iterable<Citizen>>() {
                     @Override
-                    public Iterable<Person> value() {
+                    public Iterable<Citizen> value() {
                         return new MappedIterable<>(
                             json.getAsJsonArray(),
-                            new Func<JsonElement, Person>() {
+                            new Func<JsonElement, Citizen>() {
                                 @Override
-                                public Person apply(JsonElement person) {
-                                    return new JsonPerson(person);
+                                public Citizen apply(JsonElement citizen) {
+                                    return new JsonCitizen(citizen);
                                 }
                             }
                         );

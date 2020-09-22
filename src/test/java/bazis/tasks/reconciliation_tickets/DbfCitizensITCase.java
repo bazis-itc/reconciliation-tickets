@@ -1,29 +1,29 @@
 package bazis.tasks.reconciliation_tickets;
 
-import bazis.tasks.reconciliation_tickets.dbf.DbfPersons;
+import bazis.tasks.reconciliation_tickets.dbf.DbfCitizens;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import org.junit.Ignore;
 import org.junit.Test;
 
 @Ignore
-public final class DbfPersonsITCase {
+public final class DbfCitizensITCase {
 
     @Test
     public void test() throws Exception {
         for (
-            final Person person : new DbfPersons(
+            final Citizen citizen : new DbfCitizens(
                 new File("D:\\Exchange\\SC190601.dbf")
             )
         ) System.out.printf(
             "%s %s %s %s, паспорт: %s %s%n",
-            person.fio().surname(),
-            person.fio().name(),
-            person.fio().patronymic(),
+            citizen.fio().surname(),
+            citizen.fio().name(),
+            citizen.fio().patronymic(),
             new SimpleDateFormat("dd.MM.yyyy").format(
-                person.birthdate().get()
+                citizen.birthdate().get()
             ),
-            person.passport().series(), person.passport().number()
+            citizen.passport().series(), citizen.passport().number()
         );
     }
 

@@ -4,7 +4,7 @@ import bazis.cactoos3.Opt;
 import bazis.cactoos3.exception.BazisException;
 import java.util.Date;
 
-public interface Person {
+public interface Citizen {
 
     Fio fio();
 

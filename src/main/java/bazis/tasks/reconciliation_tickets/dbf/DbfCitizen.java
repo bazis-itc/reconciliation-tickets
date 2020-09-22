@@ -4,18 +4,18 @@ import bazis.cactoos3.Opt;
 import bazis.cactoos3.exception.BazisException;
 import bazis.cactoos3.opt.OptOf;
 import bazis.dbf.DbfRecord;
+import bazis.tasks.reconciliation_tickets.Citizen;
 import bazis.tasks.reconciliation_tickets.Doc;
 import bazis.tasks.reconciliation_tickets.Fio;
-import bazis.tasks.reconciliation_tickets.Person;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-final class DbfPerson implements Person {
+final class DbfCitizen implements Citizen {
 
     private final DbfRecord record;
 
-    DbfPerson(DbfRecord record) {
+    DbfCitizen(DbfRecord record) {
         this.record = record;
     }
 
@@ -24,15 +24,15 @@ final class DbfPerson implements Person {
         return new Fio() {
             @Override
             public String surname() throws BazisException {
-                return DbfPerson.this.string("FM");
+                return DbfCitizen.this.string("FM");
             }
             @Override
             public String name() throws BazisException {
-                return DbfPerson.this.string("IM");
+                return DbfCitizen.this.string("IM");
             }
             @Override
             public String patronymic() throws BazisException {
-                return DbfPerson.this.string("OT");
+                return DbfCitizen.this.string("OT");
             }
         };
     }

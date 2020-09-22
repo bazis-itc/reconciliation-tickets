@@ -2,14 +2,14 @@ package bazis.tasks.reconciliation_tickets.json;
 
 import bazis.cactoos3.exception.BazisException;
 import bazis.tasks.reconciliation_tickets.Check;
-import bazis.tasks.reconciliation_tickets.Person;
+import bazis.tasks.reconciliation_tickets.Citizen;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public final class JsonCheck implements Check, Jsonable {
 
     private static final String
-        PERSON = "person", SUCCESS = "success", MESSAGE = "message";
+        CITIZEN = "citizen", SUCCESS = "success", MESSAGE = "message";
 
     private final Check origin;
 
@@ -22,8 +22,8 @@ public final class JsonCheck implements Check, Jsonable {
     }
 
     @Override
-    public Person person() {
-        return this.origin.person();
+    public Citizen citizen() {
+        return this.origin.citizen();
     }
 
     @Override
@@ -39,7 +39,7 @@ public final class JsonCheck implements Check, Jsonable {
     @Override
     public JsonElement asJson() throws BazisException {
         final JsonObject result = new JsonObject();
-        result.add(JsonCheck.PERSON, new JsonPerson(this.person()).asJson());
+        result.add(JsonCheck.CITIZEN, new JsonCitizen(this.citizen()).asJson());
         result.addProperty(JsonCheck.SUCCESS, this.success());
         result.addProperty(JsonCheck.MESSAGE, this.message());
         return result;
@@ -54,9 +54,9 @@ public final class JsonCheck implements Check, Jsonable {
         }
 
         @Override
-        public Person person() {
-            return new JsonPerson(
-                this.json.getAsJsonObject().get(JsonCheck.PERSON)
+        public Citizen citizen() {
+            return new JsonCitizen(
+                this.json.getAsJsonObject().get(JsonCheck.CITIZEN)
             );
         }
 

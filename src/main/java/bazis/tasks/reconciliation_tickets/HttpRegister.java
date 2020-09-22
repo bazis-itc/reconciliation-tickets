@@ -3,7 +3,7 @@ package bazis.tasks.reconciliation_tickets;
 import bazis.cactoos3.exception.BazisException;
 import bazis.cactoos3.map.MapOf;
 import bazis.tasks.reconciliation_tickets.json.JsonChecks;
-import bazis.tasks.reconciliation_tickets.json.JsonPersons;
+import bazis.tasks.reconciliation_tickets.json.JsonCitizens;
 import bazis.tasks.reconciliation_tickets.json.JsonText;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +19,11 @@ public final class HttpRegister implements Register {
     }
 
     @Override
-    public Iterable<Check> check(Iterable<Person> persons) throws BazisException {
+    public Iterable<Check> check(Iterable<Citizen> citizens) throws BazisException {
         final HttpMultipurposeClient connection = new HttpMultipurposeClient();
         try {
             connection.setInputObject(
-                new EncryptedText(new JsonText(new JsonPersons(persons)))
+                new EncryptedText(new JsonText(new JsonCitizens(citizens)))
                     .asBytes()
             );
             final Map<String, String> response = connection.invoc(

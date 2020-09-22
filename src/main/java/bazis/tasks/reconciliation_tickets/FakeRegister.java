@@ -1,22 +1,21 @@
 package bazis.tasks.reconciliation_tickets;
 
 import bazis.cactoos3.Func;
-import bazis.cactoos3.exception.BazisException;
 import bazis.cactoos3.iterable.MappedIterable;
 
 public final class FakeRegister implements Register {
 
     @Override
-    public Iterable<Check> check(Iterable<Person> persons) throws BazisException {
+    public Iterable<Check> check(Iterable<Citizen> citizens) {
         return new MappedIterable<>(
-            persons,
-            new Func<Person, Check>() {
+            citizens,
+            new Func<Citizen, Check>() {
                 @Override
-                public Check apply(final Person person) {
+                public Check apply(final Citizen citizen) {
                     return new Check() {
                         @Override
-                        public Person person() {
-                            return person;
+                        public Citizen citizen() {
+                            return citizen;
                         }
                         @Override
                         public boolean success() {

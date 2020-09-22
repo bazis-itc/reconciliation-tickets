@@ -9,10 +9,10 @@ import bazis.dbf.DbfType;
 import bazis.dbf.JavaDbf;
 import bazis.dbf.RecordData;
 import bazis.tasks.reconciliation_tickets.Check;
+import bazis.tasks.reconciliation_tickets.Citizen;
 import bazis.tasks.reconciliation_tickets.HttpRegister;
-import bazis.tasks.reconciliation_tickets.Person;
 import bazis.tasks.reconciliation_tickets.Register;
-import bazis.tasks.reconciliation_tickets.dbf.DbfPersons;
+import bazis.tasks.reconciliation_tickets.dbf.DbfCitizens;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -64,28 +64,28 @@ public class ReconciliationTicketsTask extends SXTask {
                 DbfType.CHARACTER.column("COMM", 60)
             ),
             new MappedIterable<>(
-                this.register.check(new DbfPersons(input)),
+                this.register.check(new DbfCitizens(input)),
                 new Func<Check, Object[]>() {
                     @Override
                     public Object[] apply(Check check) throws BazisException {
-                        final Person person = check.person();
-                        final Opt<Date> birthdate = person.birthdate();
+                        final Citizen citizen = check.citizen();
+                        final Opt<Date> birthdate = citizen.birthdate();
                         return new RecordData()
-                            .withString(person.snils())
-                            .withString(person.fio().surname())
-                            .withString(person.fio().name())
-                            .withString(person.fio().patronymic())
+                            .withString(citizen.snils())
+                            .withString(citizen.fio().surname())
+                            .withString(citizen.fio().name())
+                            .withString(citizen.fio().patronymic())
                             .withString(
                                 birthdate.has()
                                     ? new SimpleDateFormat("yyyy/MM/dd")
                                         .format(birthdate.get())
                                     : ""
                             )
-                            .withString(person.passport().series())
-                            .withString(person.passport().number())
-                            .withString(person.certificate().series())
-                            .withString(person.certificate().number())
-                            .withString(person.carrier())
+                            .withString(citizen.passport().series())
+                            .withString(citizen.passport().number())
+                            .withString(citizen.certificate().series())
+                            .withString(citizen.certificate().number())
+                            .withString(citizen.carrier())
                             .withInt(check.success() ? 1 : 0)
                             .withString(check.message())
                             .toArray();
