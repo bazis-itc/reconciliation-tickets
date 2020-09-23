@@ -12,11 +12,11 @@ public interface Check {
 
         private final Citizen citizen;
 
-        private final String message;
+        private final Number category;
 
-        public Positive(Citizen citizen, String message) {
+        public Positive(Citizen citizen, Number category) {
             this.citizen = citizen;
-            this.message = message;
+            this.category = category;
         }
 
         @Override
@@ -31,7 +31,9 @@ public interface Check {
 
         @Override
         public String message() {
-            return this.message;
+            return String.format(
+                "Подтверждено по категории %d", this.category.intValue()
+            );
         }
 
     }

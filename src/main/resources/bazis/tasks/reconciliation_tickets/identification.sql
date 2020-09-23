@@ -18,7 +18,16 @@ SELECT
   [localId] = person.A_LOCAL_OUID,  
   [snils] = person.A_SNILS,
   [passport.series] = passport.DOCUMENTSERIES,
-  [passport.number] = passport.DOCUMENTSNUMBER
+  [passport.number] = passport.DOCUMENTSNUMBER,
+  [categories] = (
+    SELECT CAST(basement.A_CAT AS VARCHAR) + '|' 
+    FROM CATEGORY_REF_REGISTRY category
+      JOIN PPR_REL_NPD_CAT basement ON basement.A_ID = category.A_NAME 
+        AND ISNULL(basement.A_STATUS, 10) = 10
+    WHERE category.PERSONOUID = person.A_OUID
+      AND ISNULL(category.A_STATUS, 10) = 10
+    FOR XML PATH ('')
+  )
 FROM @citizen imported
   JOIN REGISTER_PERSONAL_CARD person 
     JOIN SPR_FIO_SURNAME surname ON surname.OUID = person.SURNAME

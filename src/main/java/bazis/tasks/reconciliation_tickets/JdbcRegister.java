@@ -5,13 +5,15 @@ import bazis.cactoos3.Text;
 import bazis.cactoos3.collection.ListOf;
 import bazis.cactoos3.exception.BazisException;
 import bazis.cactoos3.iterable.EmptyIterable;
+import bazis.cactoos3.iterable.FilteredIterable;
 import bazis.cactoos3.iterable.JoinedIterable;
 import bazis.cactoos3.iterable.MappedIterable;
 import bazis.cactoos3.map.Entries;
 import bazis.cactoos3.map.MapOf;
 import bazis.cactoos3.scalar.And;
-import bazis.cactoos3.scalar.Any;
 import bazis.cactoos3.scalar.Equality;
+import bazis.cactoos3.scalar.IsEmpty;
+import bazis.cactoos3.scalar.Not;
 import bazis.cactoos3.scalar.Or;
 import bazis.cactoos3.scalar.ScalarOf;
 import bazis.cactoos3.text.Lines;
@@ -19,13 +21,16 @@ import bazis.cactoos3.text.TextOf;
 import bazis.cactoos3.text.UncheckedText;
 import bazis.tasks.reconciliation_tickets.ext.AsyncMappedIterable;
 import bazis.tasks.reconciliation_tickets.ext.CachedText;
+import bazis.tasks.reconciliation_tickets.ext.Contains;
 import bazis.tasks.reconciliation_tickets.ext.IntRange;
 import bazis.tasks.reconciliation_tickets.ext.ReplacedText;
+import bazis.tasks.reconciliation_tickets.ext.SortedIterable;
 import bazis.tasks.reconciliation_tickets.ext.SyncText;
 import bazis.tasks.reconciliation_tickets.ext.TextResource;
 import bazis.tasks.reconciliation_tickets.ext.TextWithParams;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -41,15 +46,18 @@ public final class JdbcRegister implements Register {
 
     private final Map<Integer, Database> boroughs;
 
+    private final Iterable<Record> categories;
+
     public JdbcRegister(DSLContext central, Map<Integer, Database> boroughs) {
         this.central = central;
         this.boroughs = boroughs;
+        this.categories = new Categories(central);
     }
 
     @Override
     public Iterable<Check> check(Iterable<Citizen> input) {
         final List<Citizen> citizens = new ListOf<>(input)
-            .subList(0, 100)
+//            .subList(0, 100)
         ;
         final Result<Record> persons = this.fetchPersons(citizens);
         final Map<Integer, String> docs = this.fetchDocs(persons, citizens);
@@ -60,7 +68,7 @@ public final class JdbcRegister implements Register {
             new Func<Number, Check>() {
                 @Override
                 public Check apply(Number index) throws Exception {
-                    return JdbcRegister.identify(
+                    return JdbcRegister.this.identify(
                         citizens.get(index.intValue()),
                         identity.containsKey(index.intValue())
                             ? identity.get(index.intValue())
@@ -105,7 +113,7 @@ public final class JdbcRegister implements Register {
         );
         final Result<Record> result =
             this.central.fetch(new UncheckedText(query).asString());
-        System.out.println(result);
+//        System.out.println(result);
         return result;
     }
 
@@ -130,9 +138,7 @@ public final class JdbcRegister implements Register {
                 return new TextWithParams(
                     "INSERT @person (centralId, localId, docSeries, docNumber) " +
                     "VALUES ({0}, {1}, '{2}', '{3}')",
-                    Integer.toString(
-                        new NoNulls(person).number("centralId").get().intValue()
-                    ),
+                    Integer.toString(new Person(person).centralId()),
                     Integer.toString(
                         new NoNulls(person).number("localId", 0).intValue()
                     ),
@@ -161,7 +167,7 @@ public final class JdbcRegister implements Register {
                                     )
                                 )
                             );
-                        System.out.println(result);
+//                        System.out.println(result);
                         return result;
                     }
                 },
@@ -188,43 +194,104 @@ public final class JdbcRegister implements Register {
         );
     }
 
-    private static Check identify(
-        final Citizen citizen,
-        Iterable<Record> persons, final Map<Integer, String> docs
-    ) throws Exception {
-        return new Any<>(
-            persons,
-            new Func<Record, Boolean>() {
-                @Override
-                public Boolean apply(Record person)
-                    throws Exception {
-                    return new Or(
-                        new ScalarOf<>(
-                            docs.containsKey(
-                                new NoNulls(person).number("centralId")
-                                    .get().intValue()
-                            )
-                        ),
-                        new And(
-                            new Equality(
-                                citizen.passport().series(),
-                                new NoNulls(person).string("passport.series")
+    private Check identify(final Citizen citizen,
+        Iterable<Record> persons, final Map<Integer, String> docs) {
+        final Iterable<Record> filtered = new ListOf<>(
+            new FilteredIterable<>(
+                persons,
+                new Func<Record, Boolean>() {
+                    @Override
+                    public Boolean apply(Record person)
+                        throws Exception {
+                        return new Or(
+                            new Contains(
+                                docs.keySet(), new Person(person).centralId()
                             ),
-                            new Equality(
-                                citizen.passport().number(),
-                                new NoNulls(person).string("passport.number")
+                            new And(
+                                new Equality(
+                                    citizen.passport().series(),
+                                    new NoNulls(person)
+                                        .string("passport.series")
+                                ),
+                                new Equality(
+                                    citizen.passport().number(),
+                                    new NoNulls(person)
+                                        .string("passport.number")
+                                )
+                            ),
+                            new SnilsEquality(
+                                citizen.snils(),
+                                new NoNulls(person).string("snils")
                             )
-                        ),
-                        new SnilsEquality(
-                            citizen.snils(),
-                            new NoNulls(person).string("snils")
-                        )
-                    ).value();
+                        ).value();
+                    }
                 }
-            }
-        ).value()
-            ? new Check.Positive(citizen, "Подтверждено по категории")
-            : new Check.Negative(citizen, "Личное дело не найдено");
+            )
+        );
+        final Check result;
+        if (new IsEmpty(filtered).value())
+            result = new Check.Negative(citizen, "Личное дело не найдено");
+        else {
+            final Func<Record, Iterable<Record>> toCategories =
+                new Func<Record, Iterable<Record>>() {
+                    @Override
+                    public Iterable<Record> apply(final Record person) {
+                        final int centralId =
+                            new Person(person).centralId();
+                        return new FilteredIterable<>(
+                            JdbcRegister.this.categories,
+                            new Func<Record, Boolean>() {
+                                @Override
+                                public Boolean apply(Record category)
+                                    throws Exception {
+                                    return new And(
+                                        new ScalarOf<>(
+                                            new Person(person).hasCategory(
+                                                new NoNulls(category)
+                                                    .number("id", 0)
+                                            )
+                                        ),
+                                        new Or(
+                                            new Not(
+                                                new Contains(
+                                                    docs.keySet(), centralId
+                                                )
+                                            ),
+                                            new Equality(
+                                                new NoNulls(category)
+                                                    .string("doc"),
+                                                docs.get(centralId)
+                                            )
+                                        )
+                                    ).value();
+                                }
+                            }
+                        );
+                    }
+                };
+            final Iterator<Record> iterator = new SortedIterable<>(
+                new JoinedIterable<>(
+                    new MappedIterable<>(filtered, toCategories)
+                ),
+                new Func<Record, Integer>() {
+                    @Override
+                    public Integer apply(Record category) {
+                        return new NoNulls(category)
+                            .number("priority", Integer.MAX_VALUE)
+                            .intValue();
+                    }
+                }
+            ).iterator();
+            result = iterator.hasNext()
+                ? new Check.Positive(
+                    citizen,
+                    new NoNulls(iterator.next()).number("code").get()
+                )
+                : new Check.Negative(
+                    citizen, "Не подтверждена льготная категория"
+                );
+        }
+        return result;
     }
 
 }

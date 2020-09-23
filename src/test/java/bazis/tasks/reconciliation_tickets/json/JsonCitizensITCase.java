@@ -17,7 +17,11 @@ public final class JsonCitizensITCase {
             new JsonCitizens(
                 new ListOf<>(
                     new DbfCitizens(
-                        new File("D:\\Exchange\\SC190601.dbf")
+                        new File(
+                            this.getClass()
+                                .getResource("/SC190601.dbf")
+                                .getFile()
+                        )
                     )
                 ).subList(0, 9)
             )

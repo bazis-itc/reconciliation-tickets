@@ -13,7 +13,11 @@ public final class DbfCitizensITCase {
     public void test() throws Exception {
         for (
             final Citizen citizen : new DbfCitizens(
-                new File("D:\\Exchange\\SC190601.dbf")
+            new File(
+                this.getClass()
+                    .getResource("/SC190601.dbf")
+                    .getFile()
+            )
             )
         ) System.out.printf(
             "%s %s %s %s, паспорт: %s %s%n",
