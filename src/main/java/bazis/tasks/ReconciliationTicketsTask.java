@@ -27,7 +27,7 @@ public class ReconciliationTicketsTask extends SXTask {
     private final Register register;
 
     public ReconciliationTicketsTask() {
-        this(new HttpRegister("http://172.3.1.34:8025/central/"));
+        this(new HttpRegister("http://192.168.10.21:8080/central/"));
     }
 
     ReconciliationTicketsTask(Register register) {
