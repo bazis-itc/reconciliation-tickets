@@ -4,6 +4,7 @@ import bazis.cactoos3.map.Entry;
 import bazis.cactoos3.map.MapOf;
 import bazis.tasks.reconciliation_tickets.Database;
 import bazis.tasks.reconciliation_tickets.FakeDatabase;
+import bazis.tasks.reconciliation_tickets.FakeRegister;
 import bazis.tasks.reconciliation_tickets.HttpRegister;
 import bazis.tasks.reconciliation_tickets.JdbcRegister;
 import bazis.tasks.reconciliation_tickets.Register;
@@ -45,7 +46,11 @@ public final class ReconciliationTicketsTaskITCase {
                 )
             )
         );
+    }
 
+    @Test
+    public void fake() throws Exception {
+        this.execute(new FakeRegister());
     }
 
     private void execute(Register register) throws Exception {
@@ -53,14 +58,19 @@ public final class ReconciliationTicketsTaskITCase {
         Mockito.when(input.getFile()).thenReturn(
             new File(
                 this.getClass()
-                    .getResource("/SC190601.dbf")
+                    .getResource("/SC300801.dbf")
                     .getFile()
             )
         );
         final SXFileObj output = Mockito.mock(SXFileObj.class);
         Mockito.when(output.getFile()).thenReturn(new File("target"));
-        final ReconciliationTicketsTask task =
-            new ReconciliationTicketsTask(register);
+        final ReconciliationTicketsTask task = new ReconciliationTicketsTask(
+            DSL.using(
+                "jdbc:sqlserver://172.3.1.34:1471;databaseName=rab",
+                "sa", "S1tex2017"
+            ),
+            register
+        );
         task.getLinkedData().put("importFile", input);
         task.getLinkedData().put("outputFolder", output);
         task.execute();
