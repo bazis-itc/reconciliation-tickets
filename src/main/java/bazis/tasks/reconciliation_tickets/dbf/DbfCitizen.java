@@ -11,11 +11,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-final class DbfCitizen implements Citizen {
+public final class DbfCitizen implements Citizen {
 
     private final DbfRecord record;
 
-    DbfCitizen(DbfRecord record) {
+    public DbfCitizen(DbfRecord record) {
         this.record = record;
     }
 
