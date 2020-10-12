@@ -113,7 +113,7 @@ public class ReconciliationTicketsTask extends SXTask {
                             .withString(citizen.fio().patronymic())
                             .withString(
                                 birthdate.has()
-                                    ? new SimpleDateFormat("yyyy/MM/dd")
+                                    ? new SimpleDateFormat("dd.MM.yyyy")
                                         .format(birthdate.get())
                                     : ""
                             )

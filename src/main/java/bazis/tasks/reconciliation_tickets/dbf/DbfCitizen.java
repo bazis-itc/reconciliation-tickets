@@ -46,7 +46,7 @@ public final class DbfCitizen implements Citizen {
     public Opt<Date> birthdate() throws BazisException {
         try {
             return new OptOf<>(
-                new SimpleDateFormat("yyyy/MM/dd").parse(
+                new SimpleDateFormat("dd.MM.yyyy").parse(
                     this.string("DTR")
                 )
             );
