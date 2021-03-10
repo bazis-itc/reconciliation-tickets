@@ -79,7 +79,7 @@ public class ReconciliationTicketsTask extends SXTask {
                 )
             )
         );
-        this.saveIntoDb(checks);
+        this.saveIntoDb(checks, super.getStringAttr("importType"));
         return null;
     }
 
@@ -131,17 +131,18 @@ public class ReconciliationTicketsTask extends SXTask {
         );
     }
 
-    private void saveIntoDb(Iterable<Check> checks) throws BazisException {
+    private void saveIntoDb(final Iterable<Check> checks, final String type)
+        throws BazisException {
         final String format = new CheckedText(
             new Lines(
                 "INSERT RECONCILIATION_TICKETS_VIEW (",
                 "  A_SURNAME, A_NAME, A_PATRONYMIC, A_SNILS, A_BIRTHDATE, ",
                 "  A_PASSPORT_SERIES, A_PASSPORT_NUMBER, ",
                 "  A_DOC_SERIES, A_DOC_NUMBER, ",
-                "  A_CARRIER_CODE, A_CHECK_STATUS, A_COMMENT",
+                "  A_CARRIER_CODE, A_CHECK_STATUS, A_COMMENT, A_IMPORT_TYPE",
                 ") VALUES (",
                 "  '{0}', '{1}', '{2}', '{3}', {4}, '{5}', ",
-                "  '{6}', '{7}', '{8}', '{9}', '{10}', '{11}'",
+                "  '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}'",
                 ")"
             )
         ).asString();
@@ -172,7 +173,8 @@ public class ReconciliationTicketsTask extends SXTask {
                             citizen.certificate().number(),
                             citizen.carrier(),
                             check.success() ? "1" : "0",
-                            check.message()
+                            check.message(),
+                            type
                         );
                     }
                 }

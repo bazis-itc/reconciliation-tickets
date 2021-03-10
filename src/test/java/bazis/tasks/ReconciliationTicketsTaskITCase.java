@@ -114,7 +114,7 @@ public final class ReconciliationTicketsTaskITCase {
         Mockito.when(input.getFile()).thenReturn(
             new File(
                 this.getClass()
-                    .getResource("/SC300801.dbf")
+                    .getResource("/SC190601.dbf")
                     .getFile()
             )
         );
@@ -122,13 +122,14 @@ public final class ReconciliationTicketsTaskITCase {
         Mockito.when(output.getFile()).thenReturn(new File("target"));
         final ReconciliationTicketsTask task = new ReconciliationTicketsTask(
             DSL.using(
-                "jdbc:sqlserver://172.3.1.34:1471;databaseName=rab",
+                "jdbc:sqlserver://172.3.1.34:1425;databaseName=central",
                 "sa", "S1tex2017"
             ),
             register
         );
         task.getLinkedData().put("importFile", input);
         task.getLinkedData().put("outputFolder", output);
+        task.getDataMap().put("importType", "travelCards");
         task.execute();
     }
 
